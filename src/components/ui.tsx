@@ -1,8 +1,10 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { motion, MotionConfig } from 'motion/react';
-import { ArrowUpRight, X } from 'lucide-react';
+import { ArrowUpRight, FileDown, X } from 'lucide-react';
+import { site } from '@/data/site';
 
 export function MotionProvider({ children }: { children: React.ReactNode }) {
   return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
@@ -33,11 +35,13 @@ export function ConfiguredLink({
   label,
   className = '',
   icon = true,
+  children,
 }: {
   href: string | null;
   label: string;
   className?: string;
   icon?: boolean;
+  children?: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   if (href)
@@ -48,14 +52,28 @@ export function ConfiguredLink({
         target={href.startsWith('mailto:') ? undefined : '_blank'}
         rel="noopener noreferrer"
       >
-        {label}
+        {children ? (
+          <>
+            <span className="sr-only">{label}</span>
+            {children}
+          </>
+        ) : (
+          label
+        )}
         {icon && <ArrowUpRight size={15} aria-hidden="true" />}
       </a>
     );
   return (
     <>
       <button type="button" className={className} onClick={() => dialog.current?.showModal()}>
-        {label}
+        {children ? (
+          <>
+            <span className="sr-only">{label}</span>
+            {children}
+          </>
+        ) : (
+          label
+        )}
         {icon && <ArrowUpRight size={15} aria-hidden="true" />}
         <span className="sr-only"> (details coming soon)</span>
       </button>
@@ -89,8 +107,30 @@ export function ConfiguredLink({
     </>
   );
 }
+const navigation = [
+  { id: 'work', label: 'Projects', coordinate: '01' },
+  { id: 'experience', label: 'Experience', coordinate: '02' },
+  { id: 'about', label: 'About', coordinate: '03' },
+  { id: 'contact', label: 'Contact', coordinate: '04' },
+];
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState('');
+  const pathname = usePathname();
+  useEffect(() => {
+    if (pathname !== '/') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) if (entry.isIntersecting) setActive(entry.target.id);
+      },
+      { rootMargin: '-10% 0px -25% 0px', threshold: 0 },
+    );
+    navigation.forEach((item) => {
+      const section = document.getElementById(item.id);
+      if (section) observer.observe(section);
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
   return (
     <header className="nav-shell">
       <nav className="nav container" aria-label="Main navigation">
@@ -99,8 +139,9 @@ export function Navbar() {
             a<span>p</span>
             <i />
           </span>
-          <span>
-            Ayug Poudel<span className="brand-dot">.</span>
+          <span className="wordmark">
+            ayug<span className="wordmark-slash">/</span>poudel
+            <small>Engineering observatory</small>
           </span>
         </Link>
         <button
@@ -109,27 +150,38 @@ export function Navbar() {
           aria-controls="nav-links"
           onClick={() => setOpen(!open)}
         >
-          {open ? 'Close' : 'Menu'} <span aria-hidden="true">{open ? '−' : '+'}</span>
+          {open ? 'Close' : 'Menu'}
+          <span aria-hidden="true">{open ? '−' : '+'}</span>
         </button>
         <div id="nav-links" className={`nav-links ${open ? 'is-open' : ''}`}>
-          <Link href="/#work" onClick={() => setOpen(false)}>
-            Work
-          </Link>
-          <Link href="/#experience" onClick={() => setOpen(false)}>
-            Experience
-          </Link>
-          <Link href="/#about" onClick={() => setOpen(false)}>
-            About
-          </Link>
-          <ResumeLink />
+          {navigation.map((item) => (
+            <Link
+              key={item.id}
+              href={`/#${item.id}`}
+              className={`nav-coordinate ${(pathname.startsWith('/projects/') ? item.id === 'work' : active === item.id) ? 'is-current' : ''}`}
+              aria-current={
+                (pathname.startsWith('/projects/') ? item.id === 'work' : active === item.id)
+                  ? 'location'
+                  : undefined
+              }
+              onClick={() => {
+                setOpen(false);
+                setActive(item.id);
+              }}
+            >
+              <span aria-hidden="true">{item.coordinate}</span>
+              {item.label}
+              <i aria-hidden="true" />
+            </Link>
+          ))}
         </div>
+        <ConfiguredLink href={site.resume} label="Résumé.pdf" className="nav-document" icon={false}>
+          <FileDown size={15} />
+          <span aria-hidden="true">Résumé.pdf</span>
+        </ConfiguredLink>
       </nav>
     </header>
   );
-}
-import { site } from '@/data/site';
-function ResumeLink() {
-  return <ConfiguredLink href={site.resume} label="Résumé" className="nav-resume" />;
 }
 export function SectionHeading({
   number,

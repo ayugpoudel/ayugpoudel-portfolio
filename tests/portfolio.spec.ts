@@ -5,7 +5,7 @@ test('homepage, case studies, metadata, and keyboard project navigation', async 
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('complex systems');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('working systems');
   await page.locator('.atlas-node').first().focus();
   await expect(page.locator('.atlas-preview strong')).toContainText('TAB');
   await page.keyboard.press('Enter');
@@ -14,7 +14,10 @@ test('homepage, case studies, metadata, and keyboard project navigation', async 
     await page.goto(`/projects/${name}`);
     await expect(page.locator('.case-title')).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Challenges & solutions', exact: true }),
+      page.getByRole('heading', {
+        name: name === 'gradesense' ? 'Engineering Challenges' : 'Challenges & solutions',
+        exact: true,
+      }),
     ).toBeAttached();
     expect(await page.title()).toContain('Ayug Poudel');
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
@@ -76,7 +79,10 @@ test('reduced motion preserves a stationary, navigable atlas', async ({ page }) 
 
 test('navigation, honest configuration dialog, and discipline controls', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'View résumé' }).click();
+  await page
+    .getByRole('navigation', { name: 'Main navigation' })
+    .getByRole('button', { name: 'Résumé.pdf' })
+    .click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).not.toBeVisible();
@@ -86,8 +92,31 @@ test('navigation, honest configuration dialog, and discipline controls', async (
     'true',
   );
   await expect(page.locator('.atlas-node.is-dim')).toHaveCount(5);
-  await page.getByRole('link', { name: 'Explore my work', exact: true }).click();
+  await page.getByRole('link', { name: 'Explore projects', exact: true }).click();
   await expect(page).toHaveURL(/#work/);
+});
+
+test('observatory navigation, brand-icon links, and shared disciplines', async ({ page }) => {
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(nav.getByRole('link', { name: 'Projects', exact: true })).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Contact', exact: true })).toBeVisible();
+  const social = page.locator('.hero-socials .github-icon');
+  await expect(social.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24');
+  await expect(social).toHaveAttribute('href', 'https://github.com/ayugpoudel');
+  await expect(page.locator('.hero-socials .linkedin-icon')).toHaveAttribute(
+    'href',
+    'https://www.linkedin.com/in/ayugp/',
+  );
+  await page.getByRole('button', { name: 'Full-stack', exact: true }).click();
+  await expect(page.locator('.atlas-node.is-dim')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Backend', exact: true }).click();
+  await expect(page.locator('.atlas-node.is-dim')).toHaveCount(2);
+  await nav.getByRole('link', { name: 'Contact', exact: true }).click();
+  await expect(nav.getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute(
+    'aria-current',
+    'location',
+  );
 });
 
 for (const width of [320, 390, 768, 1024, 1440]) {
@@ -109,20 +138,22 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         'false',
       );
     }
-    await page.goto('/projects/gradesense');
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
-    ).toBe(true);
+    for (const slug of ['tab', 'gradesense', 'empowher']) {
+      await page.goto(`/projects/${slug}`);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+    }
   });
 }
 
 test('homepage and case study pass automated accessibility checks', async ({ page }) => {
-  for (const url of ['/', '/projects/tab']) {
+  for (const url of ['/', '/projects/tab', '/projects/gradesense', '/projects/empowher']) {
     await page.goto(url);
     // Reveal content through scrolling before assessing actual rendered contrast.
     await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += 650) {
-        window.scrollTo(0, y);
+        window.scrollTo({ top: y, behavior: 'instant' });
         await new Promise((r) => setTimeout(r, 40));
       }
     });
@@ -134,13 +165,45 @@ test('homepage and case study pass automated accessibility checks', async ({ pag
   }
 });
 
-test('content and project navigation work without JavaScript', async ({ browser }) => {
+test('content and project navigation work without JavaScript', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto('http://127.0.0.1:3000/');
+  await page.goto(baseURL || 'http://127.0.0.1:3000/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await page.locator('.project-title').first().click();
   await expect(page).toHaveURL(/projects\/tab/);
   await expect(page.locator('.case-title')).toBeVisible();
   await context.close();
+});
+
+test('complete case studies, private attribution, and interactive architecture', async ({
+  page,
+}) => {
+  await page.goto('/projects/gradesense');
+  await expect(page.locator('.study-section')).toHaveCount(13);
+  await expect(page.locator('.study-scope')).toContainText('Dipendra Kandel');
+  await expect(page.locator('.study-scope')).toContainText('Jay Bhatta');
+  await expect(page.locator('a[href*="comp423-26s/learn-with-ai-e2"]')).toHaveCount(0);
+  await expect(page.locator('img[src*="Ina"], img[src*="Sally"]')).toHaveCount(0);
+  await page.getByRole('button', { name: /Instructor & TA/ }).click();
+  await expect(page.locator('.workflow-steps')).toContainText('Define the exam');
+  await page.getByRole('button', { name: /Student experience/ }).click();
+  await expect(page.locator('.workflow-steps')).toContainText('Preview AI feedback');
+  await page.goto('/projects/tab');
+  const explorer = page.locator('.message-pipeline').first();
+  await explorer.getByRole('button', { name: /Settle/ }).click();
+  await expect(explorer.locator('.pipeline-detail')).toContainText('no real monetary value');
+  await expect(
+    page.locator('a[href="https://github.com/psap2/hacknc-2026"]').first(),
+  ).toBeVisible();
+  await page.goto('/');
+  await expect(page.locator('#archive')).toContainText('Bet-Tracker');
+  await expect(page.locator('#archive')).toContainText('Early full-stack scaffold');
+  await page.locator('.atlas-directory summary').click();
+  await page
+    .locator('.atlas-directory')
+    .getByRole('button', { name: 'GradeSense', exact: true })
+    .click();
+  await expect(page.locator('.atlas-readout')).toContainText('Angular');
+  await expect(page.locator('.atlas-related')).toContainText('Shared engineering');
 });

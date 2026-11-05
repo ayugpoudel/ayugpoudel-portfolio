@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+const deploymentURL = process.env.PLAYWRIGHT_BASE_URL;
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL: deploymentURL || 'http://127.0.0.1:3000',
     channel: process.env.CI ? undefined : 'chrome',
     trace: 'retain-on-failure',
   },
@@ -16,10 +17,12 @@ export default defineConfig({
     },
   ],
   reporter: 'list',
-  webServer: {
-    command: 'npm run start',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  webServer: deploymentURL
+    ? undefined
+    : {
+        command: 'npm run start',
+        url: 'http://127.0.0.1:3000',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120000,
+      },
 });

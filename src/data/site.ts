@@ -1,13 +1,19 @@
 /** Set only verified public URLs. null intentionally renders an honest placeholder. */
 export const site = {
   name: 'Ayug Poudel',
-  title: 'Ayug Poudel — Software Engineer · The Systems Atlas',
+  title: 'Ayug Poudel | Software Engineer',
   description:
-    'Computer Science and Statistics at UNC–Chapel Hill. Full-stack applications, AI agents, backend systems, and the thinking that connects them.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || null,
-  email: null as string | null,
-  github: null as string | null,
-  linkedin: null as string | null,
+    'Ayug Poudel is a Computer Science and Statistics student at UNC–Chapel Hill building full-stack applications, AI-powered tools, and backend systems.',
+  url:
+    (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : '')
+    ).replace(/\/$/, '') || null,
+  email: 'ayugpoudel@gmail.com' as string | null,
+  github: 'https://github.com/ayugpoudel' as string | null,
+  linkedin: 'https://www.linkedin.com/in/ayugp/' as string | null,
   resume: null as string | null,
 };
 export type Category = 'ai' | 'fullstack' | 'backend' | 'data';
@@ -36,48 +42,54 @@ export type Project = {
   features: string[];
   github: string | null;
   demo: string | null;
+  video?: string;
+  sourceVisibility?: 'public' | 'private';
+  collaboration?: string;
 };
 export const projects: Project[] = [
   {
     slug: 'tab',
     number: '01',
     name: 'TAB',
-    title: 'Shared expenses. Clearer connections.',
-    category: 'AI agents / Full-stack',
+    title: 'The expense agent in your iMessage conversation.',
+    category: 'AI agents / Financial systems',
     discipline: 'ai',
-    tagline: 'Less splitting hairs. More splitting bills.',
+    tagline: 'A message in. A balanced ledger out.',
     description:
-      'An AI-assisted group expense platform that brings purchases, participant balances, and transaction histories into one mobile-first experience.',
-    stack: ['TypeScript', 'React', 'Bun', 'Photon', 'Gemini API'],
+      'A HackNC 2026 expense agent that turns iMessage conversations and receipt photos into trip ledgers, dispute workflows, and Solana devnet settlements.',
+    stack: ['TypeScript', 'Node.js', 'Hono', 'Photon Spectrum', 'Gemini', 'SQLite', 'Solana'],
     problem:
-      'Shared purchases create a second job: recording receipts, tracking who participated, and keeping group balances understandable. TAB brings these pieces into a single group-oriented workflow.',
+      'Shared trips create scattered receipts, ambiguous splits, and balances that are difficult to explain. TAB puts expense entry, dispute handling, and settlement into the messaging conversation.',
     approach:
-      'I built a React and TypeScript application backed by Bun, connecting a group-chat-inspired interface to backend-managed financial records. Photon agents and the Gemini API assist with receipt processing and expense entry.',
+      'Built collaboratively at HackNC 2026 with Prasun Sapkota and Amit Khanal. Gemini interprets language and receipts; TypeScript owns financial calculations, ledger updates, and payment operations.',
     decisions: [
       {
-        title: 'A familiar interaction model',
-        text: 'A group-chat-inspired interface puts expense activity in a shared context, while the backend manages the corresponding purchases, balances, and transaction histories.',
+        title: 'Bounded AI interpretation',
+        text: 'Gemini identifies a typed intent or receipt shape; deterministic TypeScript routines perform the application action.',
       },
       {
-        title: 'AI at the point of entry',
-        text: 'Photon agents and Gemini support receipt processing and expense-entry workflows—the point where manually recording a shared purchase creates friction.',
+        title: 'Exact ledger arithmetic',
+        text: 'Integer-cent values and largest-remainder allocation keep shared totals explainable and consistent.',
       },
       {
-        title: 'Built for smaller screens',
-        text: 'A mobile-first interface keeps group expenses usable on the device people have with them when making a purchase.',
+        title: 'Devnet payment scope',
+        text: 'A custodial test-wallet adapter demonstrates settlement with a custom Solana devnet token, without claiming production real-money readiness.',
       },
     ],
     challenge:
-      'The core engineering challenge was connecting a conversational group interface to structured financial records. Backend-managed purchases, participant balances, and transaction histories provide the record behind that interface.',
+      'Natural language is ambiguous, while a financial ledger must be exact. Bounded AI intents, integer-cent allocation, explicit dispute states, and deterministic payment operations keep those responsibilities separate.',
     outcome:
-      'The resulting application connects group expense management with AI-assisted entry in a mobile-first workflow. Public usage metrics and a live demo are not provided.',
+      'A complete HackNC prototype with a public source repository, demo video, and documented deployment. Payments use a custom test token on Solana devnet; this is not a production real-money service.',
     features: [
-      'Group purchases & participants',
-      'Receipt-assisted expense entry',
-      'Backend-managed balance records',
+      'iMessage text & receipt entry',
+      'Multi-trip ledgers & disputes',
+      'Devnet settlement & transaction history',
     ],
-    github: null,
-    demo: null,
+    github: 'https://github.com/psap2/hacknc-2026',
+    demo: 'https://tab-production-2bdf.up.railway.app',
+    video: 'https://vimeo.com/1234803827',
+    sourceVisibility: 'public',
+    collaboration: 'HackNC team · Ayug Poudel, Prasun Sapkota & Amit Khanal',
   },
   {
     slug: 'gradesense',
@@ -88,12 +100,12 @@ export const projects: Project[] = [
     discipline: 'fullstack',
     tagline: 'Give every appeal a structured path.',
     description:
-      'An AI-assisted regrade platform that organizes grade appeals for students, teaching assistants, and instructors.',
-    stack: ['Angular', 'FastAPI', 'PostgreSQL', 'SQLModel', 'OpenAI'],
+      'An end-to-end exam and regrading feature inside LearnWithAI: graded PDFs, question rubrics, AI-assisted appeals, instructor decisions, and final-score tracking.',
+    stack: ['Angular', 'TypeScript', 'FastAPI', 'Python', 'PostgreSQL', 'SQLModel', 'Azure OpenAI'],
     problem:
       'Academic regrading involves multiple roles and a request that needs to stay understandable as it moves through review. GradeSense organizes that process around structured appeals and explicit access controls.',
     approach:
-      'I built FastAPI services and relational data models using PostgreSQL and SQLModel, with an Angular frontend. LLM-assisted appeal classification supports the request workflow, while role-based controls distinguish student, teaching assistant, and instructor access.',
+      'Developed collaboratively by Ayug Poudel, Dipendra Kandel, and Jay Bhatta. Angular components call typed FastAPI endpoints, business services coordinate repositories, and PostgreSQL stores the grading and appeal workflow.',
     decisions: [
       {
         title: 'Model the workflow explicitly',
@@ -111,14 +123,16 @@ export const projects: Project[] = [
     challenge:
       'Supporting several academic roles requires more than a shared interface. Role-based access controls and structured request models address the different responsibilities involved in the grading workflow.',
     outcome:
-      'GradeSense brings appeal organization, role-aware access, and AI-assisted classification into one full-stack application. Public deployment and adoption metrics are not provided.',
+      'A complete collaborative grading-and-appeal workflow within LearnWithAI. The case study describes the inspected implementation, its tests, and the hardening work needed before wider deployment.',
     features: [
-      'Student, TA & instructor roles',
-      'LLM-assisted classification',
-      'Tested request & grading APIs',
+      'Exam PDFs, rubrics & question scores',
+      'AI previews & staff review',
+      'Instructor decisions & final grades',
     ],
     github: null,
     demo: null,
+    sourceVisibility: 'private',
+    collaboration: 'Collaborative project · Ayug Poudel, Dipendra Kandel & Jay Bhatta',
   },
   {
     slug: 'empowher',
@@ -131,11 +145,11 @@ export const projects: Project[] = [
     award: '1st place · Fidelity FidHacks 2025',
     description:
       'An AI-powered career-development platform connecting interview practice, resume analysis, learning resources, and event discovery.',
-    stack: ['JavaScript', 'REST APIs', 'Open-source AI tools'],
+    stack: ['HTML/CSS', 'JavaScript', 'HTTP APIs', 'FileReader', 'Servor'],
     problem:
       'Career preparation spans several disconnected activities: practicing interviews, improving a resume, finding useful learning material, and discovering opportunities. EmpowHER brings those activities together.',
     approach:
-      'At Fidelity’s invite-only FidHacks 2025, I worked on a platform combining four career-development tools. I developed integrations for AI responses and resume analysis using JavaScript, REST APIs, and open-source AI tools.',
+      'At Fidelity’s invite-only FidHacks 2025, I worked on a four-tool career platform and its AI response and résumé-analysis integrations. The public source shows a JavaScript frontend, a chat API contract, and browser-side résumé-scoring rules.',
     decisions: [
       {
         title: 'One connected toolkit',
@@ -155,8 +169,10 @@ export const projects: Project[] = [
     outcome:
       'EmpowHER won first place at Fidelity FidHacks 2025, an invite-only hackathon with 48 selected participants. No public usage metrics are provided.',
     features: ['AI interview practice', 'Resume analysis & scoring', 'Career resources & events'],
-    github: null,
+    github: 'https://github.com/tabiyakhokhar/EmpowHer',
     demo: null,
+    sourceVisibility: 'public',
+    collaboration: 'Team hackathon project · AI responses and résumé-analysis integrations',
   },
 ];
 export const experiences = [
@@ -201,15 +217,18 @@ export const experiences = [
     bullets: [
       'Built Python and NumPy/Pandas processing pipelines for simulation outputs.',
       'Automated five scientific analysis workflows.',
-      'Studied electronic and structural properties of Sc₂C MXenes, including band structures, density of states, and charge-density outputs.',
+      'Studied Sc₂C MXenes using Quantum ESPRESSO outputs, including band structures, density of states, Fermi-level, and charge-density analysis.',
     ],
     metrics: [{ value: '05', label: 'Analysis workflows automated' }],
   },
 ];
 export const skills = [
   ['Languages', 'Java, Python, JavaScript, TypeScript, HTML/CSS'],
-  ['Frameworks', 'Angular, React, FastAPI, Spring Boot, Bun, SQLModel, SQLAlchemy'],
-  ['Data', 'PostgreSQL, MySQL, Pandas, NumPy, Matplotlib'],
-  ['AI & tools', 'OpenAI, Gemini API, Photon, Docker, Git, Jupyter, Quantum ESPRESSO'],
+  ['Frameworks', 'Angular, React, FastAPI, Hono, Node.js, Spring Boot, Bun, SQLModel, SQLAlchemy'],
+  ['Data', 'PostgreSQL, SQLite, MySQL, Pandas, NumPy, Matplotlib'],
+  [
+    'AI & tools',
+    'Azure OpenAI, Gemini API, Photon Spectrum, Solana devnet, Docker, Git, Jupyter, Quantum ESPRESSO',
+  ],
   ['Testing', 'Playwright, Pytest, JUnit, Mockito'],
 ];

@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.vercel/
 out/
 .env*
 !.env.example
@@ -7,3 +8,4 @@ out/
 *.tsbuildinfo
 playwright-report/
 test-results/
+.vercel

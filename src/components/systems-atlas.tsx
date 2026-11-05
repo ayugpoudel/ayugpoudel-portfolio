@@ -2,79 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Crosshair, RotateCcw } from 'lucide-react';
 import { disciplines, type Category } from '@/data/site';
+import { projectDisciplines, atlasProjects as planets, atlasConnections } from '@/data/atlas';
 
-type Planet = {
-  id: string;
-  name: string;
-  category: Category;
-  caption: string;
-  href: string;
-  orbit: number;
-  phase: number;
-  radius: number;
-};
-const planets: Planet[] = [
-  {
-    id: 'tab',
-    name: 'TAB',
-    category: 'ai',
-    caption: 'AI-assisted shared expenses. Built around the group.',
-    href: '/projects/tab',
-    orbit: 0,
-    phase: 0.4,
-    radius: 10,
-  },
-  {
-    id: 'gradesense',
-    name: 'GradeSense',
-    category: 'fullstack',
-    caption: 'A structured path from grade appeal to resolution.',
-    href: '/projects/gradesense',
-    orbit: 1,
-    phase: 3.7,
-    radius: 12,
-  },
-  {
-    id: 'empowher',
-    name: 'EmpowHER',
-    category: 'ai',
-    caption: 'Four connected career tools. First place at FidHacks 2025.',
-    href: '/projects/empowher',
-    orbit: 2,
-    phase: 5.1,
-    radius: 9,
-  },
-  {
-    id: 'porch',
-    name: 'Porch',
-    category: 'backend',
-    caption: 'Backend APIs and data models for a neighborhood iOS platform.',
-    href: '/#porch',
-    orbit: 1,
-    phase: 0.9,
-    radius: 8,
-  },
-  {
-    id: 'fidelity',
-    name: 'Developer Hub',
-    category: 'fullstack',
-    caption: 'A developer hub bringing 40+ versioned AI prototypes together.',
-    href: '/#fidelity',
-    orbit: 2,
-    phase: 2.3,
-    radius: 8,
-  },
-  {
-    id: 'research',
-    name: 'Materials Research',
-    category: 'data',
-    caption: 'Python pipelines for computational materials research.',
-    href: '/#research',
-    orbit: 0,
-    phase: 3.6,
-    radius: 7,
-  },
-];
 const orbits = [
   { rx: 133, ry: 73 },
   { rx: 211, ry: 116 },
@@ -137,12 +66,14 @@ const initialLabels = labelLayout(
 );
 export function SystemsAtlas() {
   const [active, setActive] = useState<string | null>(null);
-  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>('tab');
   const [filter, setFilter] = useState<Category | null>(null);
   const [motionEnabled, setMotionEnabled] = useState(true);
   const nodes = useRef<(SVGGElement | null)[]>([]);
   const labels = useRef<(SVGTextElement | null)[]>([]);
   const leaders = useRef<(SVGLineElement | null)[]>([]);
+  const stellar = useRef<(SVGGElement | null)[]>([]);
+  const connections = useRef<(SVGPathElement | null)[]>([]);
   const slow = useRef(false);
   const hovering = useRef<string | null>(null);
   const focused = useRef<string | null>(null);
@@ -173,6 +104,14 @@ export function SystemsAtlas() {
         position(planet.orbit, planet.phase + phase.current * [1, 0.72, 0.5][planet.orbit]),
       );
       const layout = labelLayout(points, widths);
+      atlasConnections.forEach((edge, i) => {
+        const from = points[planets.findIndex((p) => p.id === edge.from)];
+        const to = points[planets.findIndex((p) => p.id === edge.to)];
+        connections.current[i]?.setAttribute(
+          'd',
+          `M${from.x} ${from.y} Q${(from.x + to.x) / 2} ${Math.min(from.y, to.y) - 45} ${to.x} ${to.y}`,
+        );
+      });
       planets.forEach((planet, i) => {
         const p = points[i];
         const l = layout[i];
@@ -181,6 +120,10 @@ export function SystemsAtlas() {
         labels.current[i]?.setAttribute('y', `${l.y}`);
         leaders.current[i]?.setAttribute('x2', `${l.x}`);
         leaders.current[i]?.setAttribute('y2', `${l.y > 0 ? l.y - 14 : l.y + 7}`);
+      });
+      stellar.current.forEach((el, i) => {
+        const p = position(i % 3, [0.85, 2.5, 4.2, 5.9][i] + phase.current * (1.4 + i * 0.25));
+        el?.setAttribute('transform', `translate(${p.x} ${p.y})`);
       });
       if (!query.matches && motionEnabled) raf = requestAnimationFrame(tick);
     }
@@ -199,6 +142,17 @@ export function SystemsAtlas() {
     };
   }, [motionEnabled]);
   const selected = planets.find((p) => p.id === previewId);
+  const highlighted = active;
+  const related = selected
+    ? atlasConnections
+        .filter((edge) => edge.from === selected.id || edge.to === selected.id)
+        .map((edge) => ({
+          node: planets.find((p) => p.id === (edge.from === selected.id ? edge.to : edge.from))!,
+          shared: edge.shared,
+        }))
+        .sort((a, b) => b.shared.length - a.shared.length)
+        .slice(0, 3)
+    : [];
   function syncActive() {
     const id = hovering.current || focused.current;
     slow.current = !!id;
@@ -206,13 +160,16 @@ export function SystemsAtlas() {
     if (id) setPreviewId(id);
   }
   return (
-    <div className="atlas" aria-label="The Systems Atlas, an interactive project map">
+    <div
+      className="atlas observatory-atlas"
+      aria-label="The Systems Atlas, an interactive project map"
+    >
       <div className="atlas-topline">
         <span className="eyebrow">
           <span className="status-dot" />
-          The systems atlas
+          The project observatory
         </span>
-        <span className="atlas-edition">INTERACTIVE / 01</span>
+        <span className="atlas-edition">06 PROJECTS · ONE PERSPECTIVE</span>
       </div>
       <div
         className="atlas-stage"
@@ -244,24 +201,38 @@ export function SystemsAtlas() {
           role="group"
           aria-labelledby="atlas-title atlas-desc"
         >
-          <title id="atlas-title">Projects orbiting Ayug’s engineering world</title>
+          <title id="atlas-title">
+            The Systems Atlas: projects around a black-hole observatory
+          </title>
           <desc id="atlas-desc">
-            Six project planets follow three orbital paths. Hover or focus a planet to slow the
-            system and reveal a preview. Select a planet to explore its project. A motion control is
-            below the map.
+            Six project markers follow three orbital paths around a single black hole, framed by an
+            accretion disk and light jets. Hover or focus a planet to slow the system and reveal a
+            preview. Select a planet to explore its project. A motion control is below the map.
           </desc>
           <defs>
-            <radialGradient id="planet-body" cx="29%" cy="24%" r="85%">
-              <stop offset="0" stopColor="#7bafd4" />
-              <stop offset=".36" stopColor="#345d83" />
-              <stop offset=".75" stopColor="#142c46" />
-              <stop offset="1" stopColor="#090e16" />
-            </radialGradient>
-            <radialGradient id="atmosphere">
-              <stop offset=".48" stopColor="#7bafd4" stopOpacity=".12" />
-              <stop offset=".68" stopColor="#7bafd4" stopOpacity=".05" />
+            <linearGradient id="jet-light" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#a9cfff" stopOpacity="0" />
+              <stop offset=".48" stopColor="#d6eaff" stopOpacity=".5" />
+              <stop offset="1" stopColor="#7c8eff" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="jet-volume" x1="0" y1="0" x2="1" y2="0">
+              <stop stopColor="#7bafd4" stopOpacity="0" />
+              <stop offset=".5" stopColor="#7bafd4" stopOpacity=".12" />
+              <stop offset="1" stopColor="#7bafd4" stopOpacity="0" />
+            </linearGradient>
+
+            <radialGradient id="field-halo">
+              <stop offset="0" stopColor="#7bafd4" stopOpacity=".1" />
+              <stop offset=".38" stopColor="#7bafd4" stopOpacity=".035" />
               <stop offset="1" stopColor="#7bafd4" stopOpacity="0" />
             </radialGradient>
+            <linearGradient id="disk-radiance" x1="0" y1=".7" x2="1" y2=".3">
+              <stop stopColor="#7c8eff" stopOpacity=".1" />
+              <stop offset=".24" stopColor="#7bafd4" stopOpacity=".5" />
+              <stop offset=".55" stopColor="#e0f1ff" stopOpacity=".95" />
+              <stop offset=".78" stopColor="#a8d1ee" stopOpacity=".75" />
+              <stop offset="1" stopColor="#7bafd4" stopOpacity=".12" />
+            </linearGradient>
             <linearGradient id="orbit-gradient">
               <stop stopColor="#7bafd4" stopOpacity=".5" />
               <stop offset=".45" stopColor="#7c8eff" stopOpacity=".12" />
@@ -270,14 +241,26 @@ export function SystemsAtlas() {
             <pattern id="atlas-grid" width="38" height="38" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r=".65" fill="#7bafd4" opacity=".18" />
             </pattern>
-            <clipPath id="world-clip">
-              <circle cx="340" cy="290" r="59" />
-            </clipPath>
           </defs>
           <rect width="680" height="570" fill="url(#atlas-grid)" />
-          <g className="atlas-crosshairs" stroke="#7bafd4" opacity=".28" strokeWidth=".7">
-            <path d="M25 80h12m-6-6v12M634 80h12m-6-6v12M25 483h12m-6-6v12M634 483h12m-6-6v12" />
-            <path d="M340 55v32M340 494v25M20 290h30M630 290h30" />
+          <g aria-hidden="true" pointerEvents="none">
+            {atlasConnections.map((edge, i) => {
+              const from = initialPoints[planets.findIndex((p) => p.id === edge.from)];
+              const to = initialPoints[planets.findIndex((p) => p.id === edge.to)];
+              return (
+                <path
+                  key={`${edge.from}-${edge.to}`}
+                  ref={(el) => {
+                    connections.current[i] = el;
+                  }}
+                  className="atlas-connection"
+                  d={`M${from.x} ${from.y} Q${(from.x + to.x) / 2} ${Math.min(from.y, to.y) - 45} ${to.x} ${to.y}`}
+                  opacity={
+                    highlighted && (edge.from === highlighted || edge.to === highlighted) ? 0.22 : 0
+                  }
+                />
+              );
+            })}
           </g>
           <text x="24" y="46" className="coordinate">
             35.9049° N
@@ -285,7 +268,7 @@ export function SystemsAtlas() {
           <text x="657" y="527" textAnchor="end" className="coordinate">
             79.0469° W
           </text>
-          <circle cx="340" cy="290" r="153" fill="url(#atmosphere)" />
+          <circle cx="340" cy="290" r="153" fill="url(#field-halo)" />
           <g transform="rotate(-24.637 340 290)" fill="none">
             {orbits.map((o, i) => (
               <g key={i}>
@@ -320,41 +303,129 @@ export function SystemsAtlas() {
               strokeDasharray="2 7"
             />
           </g>
-          <g className="world">
-            <circle cx="340" cy="290" r="63" fill="none" stroke="#7bafd4" strokeOpacity=".2" />
+          <g
+            className="quasar-field"
+            transform="rotate(-24 340 290)"
+            aria-hidden="true"
+            pointerEvents="none"
+          >
+            <path
+              className="quasar-beam"
+              d="M335 240 339 100 341 100 346 240Z M335 340 340 477 342 477 346 340Z"
+            />
+            <path className="quasar-jet" d="M340 100V242M341 338V477" />
+          </g>
+          {[0.85, 2.5, 4.2, 5.9].map((a, i) => {
+            const p = position(i % 3, a);
+            return (
+              <g
+                key={i}
+                ref={(el) => {
+                  stellar.current[i] = el;
+                }}
+                transform={`translate(${p.x} ${p.y})`}
+                aria-hidden="true"
+                pointerEvents="none"
+              >
+                <circle className="stellar-point" r={i % 2 ? 1.6 : 2} />
+                <path
+                  className="stellar-glint"
+                  d="M-4 0h8M0-4v8"
+                  stroke="#b9d6ef"
+                  strokeWidth=".5"
+                />
+              </g>
+            );
+          })}
+          <g
+            className="black-hole"
+            transform="rotate(-24 340 290)"
+            aria-hidden="true"
+            pointerEvents="none"
+          >
+            {/* Far side of the disk and its lensed upper image sit behind the shadow. */}
+            <ellipse
+              cx="340"
+              cy="290"
+              rx="114"
+              ry="24"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="7"
+              opacity=".08"
+            />
+            <ellipse
+              cx="340"
+              cy="290"
+              rx="109"
+              ry="21"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="1"
+              opacity=".55"
+            />
+            <path
+              d="M230 290C263 286 278 287 288 264C306 218 375 217 392 264C401 286 421 287 450 290"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="6"
+              opacity=".07"
+            />
+            <path
+              d="M230 290C263 286 278 287 288 264C306 218 375 217 392 264C401 286 421 287 450 290"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="1.2"
+              opacity=".65"
+            />
+            {/* One unlit shadow replaces the former globe surface entirely. */}
+            <circle cx="340" cy="290" r="46" fill="#03060b" />
             <circle
               cx="340"
               cy="290"
-              r="59"
-              fill="url(#planet-body)"
-              stroke="#a7d5f6"
-              strokeOpacity=".5"
-            />
-            <g
-              clipPath="url(#world-clip)"
+              r="47.3"
               fill="none"
-              stroke="#acd4ed"
-              strokeWidth=".6"
-              opacity=".24"
-            >
-              <ellipse cx="340" cy="290" rx="25" ry="59" />
-              <ellipse cx="340" cy="290" rx="47" ry="59" />
-              <ellipse cx="340" cy="290" rx="59" ry="23" />
-              <ellipse cx="340" cy="273" rx="57" ry="20" />
-              <ellipse cx="340" cy="311" rx="56" ry="20" />
-              <path d="M280 290h120M340 230v120" />
-              <path
-                d="M300 256l18-8 12 9-5 15 11 8-4 12-17-3-9 15-9-11 7-13-6-9zm48 34 18-9 20 9-7 13-17 3-7 21-13-6 5-15z"
-                fill="#a3d0ee"
-                fillOpacity=".35"
-                strokeOpacity=".5"
-              />
-            </g>
-            <circle cx="319" cy="256" r="2" fill="#c9e8ff" />
-            <path d="M314 254l-15-15h-37" fill="none" stroke="#7bafd4" strokeOpacity=".6" />
-            <text x="258" y="235" textAnchor="end" className="planet-callout">
-              CHAPEL HILL, NC
-            </text>
+              stroke="url(#disk-radiance)"
+              strokeWidth="4"
+              opacity=".1"
+            />
+            <circle
+              cx="340"
+              cy="290"
+              r="46.6"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth=".9"
+              opacity=".8"
+            />
+            {/* The near side crosses the shadow as a band, rather than a planetary ring. */}
+            <path
+              d="M230 290C249 324 429 324 450 290L447 289C426 309 252 309 233 289Z"
+              fill="url(#disk-radiance)"
+              opacity=".3"
+            />
+            <path
+              d="M230 290C249 324 429 324 450 290"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="4"
+              opacity=".14"
+            />
+            <path
+              d="M232 290C251 317 429 317 448 290"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth="1.4"
+            />
+            <path
+              d="M241 292C261 315 419 315 439 292"
+              fill="none"
+              stroke="url(#disk-radiance)"
+              strokeWidth=".55"
+              opacity=".65"
+            />
+          </g>
+          <g className="observatory-core-label">
             <text x="340" y="378" textAnchor="middle" className="world-label">
               AYUG POUDEL
             </text>
@@ -375,7 +446,7 @@ export function SystemsAtlas() {
               >
                 <a
                   href={p.href}
-                  className={`atlas-node ${active === p.id ? 'is-active' : ''} ${filter && filter !== p.category ? 'is-dim' : ''}`}
+                  className={`atlas-node ${active === p.id ? 'is-active' : ''} ${filter && !projectDisciplines[p.id].includes(filter) ? 'is-dim' : ''}`}
                   aria-label={`${p.name}: ${p.caption}`}
                   onMouseEnter={() => {
                     hovering.current = p.id;
@@ -445,24 +516,34 @@ export function SystemsAtlas() {
       </div>
       <div className="atlas-preview" aria-live="polite" aria-atomic="true">
         {selected ? (
-          <a href={selected.href}>
-            <div>
-              <span className="eyebrow">
-                {disciplines.find((d) => d.id === selected.category)?.label}
-              </span>
-              <strong>
-                {selected.name}
-                <ArrowUpRight size={17} />
-              </strong>
-              <p>{selected.caption}</p>
+          <div className="atlas-readout">
+            <span className="eyebrow">
+              {disciplines.find((d) => d.id === selected.category)?.label}
+            </span>
+            <strong>{selected.name}</strong>
+            <p>{selected.caption}</p>
+            <div className="preview-tech">{selected.technologies.join(' / ')}</div>
+            <div className="atlas-related">
+              <span>Shared engineering ↳</span>
+              {related.map(({ node, shared }) => (
+                <a key={node.id} href={node.href} title={`Shares ${shared.join(', ')}`}>
+                  {node.name}
+                </a>
+              ))}
             </div>
-          </a>
+            <a href={selected.href} className="preview-open-case">
+              {selected.href.startsWith('/projects/')
+                ? 'Open complete case study'
+                : 'View engineering experience'}
+              <ArrowUpRight size={13} />
+            </a>
+          </div>
         ) : (
           <div className="atlas-instruction">
             <Crosshair size={17} />
             <span>
-              A small universe of things I build.
-              <small>Hover a planet to slow down. Click to explore.</small>
+              A connected view of my engineering work.
+              <small>Hover to slow the orbits. Select a project to explore.</small>
             </span>
           </div>
         )}
@@ -489,18 +570,16 @@ export function SystemsAtlas() {
           <span className="sr-only">{motionEnabled ? 'Pause' : 'Resume'}</span>
         </button>
       </div>
-      <div className="atlas-mobile-index" aria-label="Project directory">
-        {planets.map((p) => (
-          <a key={p.id} href={p.href}>
-            <span
-              className="tiny-dot"
-              style={{ background: disciplines.find((d) => d.id === p.category)?.color }}
-            />
-            {p.name}
-            <ArrowUpRight size={13} />
-          </a>
-        ))}
-      </div>
+      <details className="atlas-directory">
+        <summary>Choose a project coordinate</summary>
+        <div className="atlas-directory-grid">
+          {planets.map((p) => (
+            <button key={p.id} aria-pressed={previewId === p.id} onClick={() => setPreviewId(p.id)}>
+              {p.name}
+            </button>
+          ))}
+        </div>
+      </details>
     </div>
   );
 }

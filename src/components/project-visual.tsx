@@ -17,9 +17,9 @@ export function ProjectVisual({ slug, large = false }: { slug: string; large?: b
       role="img"
       aria-label={
         slug === 'tab'
-          ? 'Illustrative TAB architecture: shared purchases connect participants to AI-assisted entry and balance records.'
+          ? 'Illustrative TAB architecture: iMessage enters an AI interpreter, then deterministic ledger operations and devnet settlement.'
           : slug === 'gradesense'
-            ? 'Illustrative GradeSense workflow: a submitted appeal moves through AI-assisted classification, role-based review, and resolution.'
+            ? 'Illustrative GradeSense workflow: a submitted appeal moves through AI preview + recommendation, role-based review, and resolution.'
             : 'Illustrative EmpowHER toolkit: interview practice, resume analysis, learning resources, and event discovery.'
       }
     >
@@ -35,38 +35,29 @@ export function ProjectVisual({ slug, large = false }: { slug: string; large?: b
         <span>CONCEPT DIAGRAM</span>
       </div>
       {slug === 'tab' ? (
-        <div className="tab-diagram">
-          <div className="participant participant-one">
-            <span>AP</span>
-            <small>Participant 01</small>
+        <div className="tab-system-preview">
+          <div className="preview-message">
+            <span>iMessage / illustrative input</span>
+            <strong>“I paid for gas. Split with everyone.”</strong>
           </div>
-          <div className="participant participant-two">
-            <span>02</span>
-            <small>Participant 02</small>
-          </div>
-          <div className="participant participant-three">
-            <span>03</span>
-            <small>Participant 03</small>
-          </div>
-          <svg viewBox="0 0 500 280" aria-hidden="true">
-            <path
-              d="M100 62Q250 30 250 140M400 62Q250 30 250 140M250 236V140"
-              fill="none"
-              stroke="currentColor"
-              strokeDasharray="4 5"
-            />
-          </svg>
-          <div className="transaction-core">
-            <GitBranch size={20} />
-            <strong>
-              One shared TAB<span>.</span>
-            </strong>
-            <small>Purchases → balances → history</small>
-          </div>
-          <div className="ai-input">
-            <Sparkles size={13} />
-            AI-assisted receipt entry
+          <div className="preview-process">
+            <span>Photon</span>
             <ArrowRight size={13} />
+            <span>Gemini intent</span>
+            <ArrowRight size={13} />
+            <span>Typed action</span>
+          </div>
+          <div className="preview-ledger">
+            <GitBranch size={18} />
+            <div>
+              <strong>Deterministic ledger</strong>
+              <small>Integer cents · SQLite · disputes</small>
+            </div>
+          </div>
+          <div className="preview-settlement">
+            Solana devnet
+            <ArrowRight size={13} />
+            <span>Test-token settlement</span>
           </div>
         </div>
       ) : slug === 'gradesense' ? (
@@ -91,7 +82,7 @@ export function ProjectVisual({ slug, large = false }: { slug: string; large?: b
             </span>
             <div>
               <small>02 / INTELLIGENCE</small>
-              <strong>AI-assisted classification</strong>
+              <strong>AI preview + recommendation</strong>
             </div>
             <span className="processing-dot" />
           </div>
@@ -105,7 +96,7 @@ export function ProjectVisual({ slug, large = false }: { slug: string; large?: b
             </span>
             <div>
               <small>03 / REVIEW</small>
-              <strong>Review → resolution</strong>
+              <strong>Staff decision → final score</strong>
             </div>
             <ArrowRight size={15} />
           </div>
@@ -138,7 +129,7 @@ export function ProjectVisual({ slug, large = false }: { slug: string; large?: b
       <div className="visual-bottom">
         <span>
           {slug === 'tab'
-            ? 'REACT ↔ BUN ↔ AI AGENTS'
+            ? 'IMESSAGE → AI INTENT → LEDGER → DEVNET'
             : slug === 'gradesense'
               ? 'STRUCTURED DATA. CLEAR RESPONSIBILITIES.'
               : 'FOUR ENTRY POINTS. ONE PLATFORM.'}

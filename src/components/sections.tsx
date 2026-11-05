@@ -4,57 +4,64 @@ import { site, projects, experiences, skills } from '@/data/site';
 import { ConfiguredLink, Reveal, SectionHeading } from './ui';
 import { SystemsAtlas } from './systems-atlas';
 import { ProjectVisual } from './project-visual';
+import { SocialLinks } from './social-links';
+import { ArchitectureDiagram } from './engineering-diagrams';
+import { engineeringArchive } from '@/data/case-studies';
 export function Hero() {
   return (
     <section className="hero container" aria-labelledby="hero-heading">
-      <div className="hero-layout">
-        <div className="hero-copy">
-          <Reveal>
-            <div className="eyebrow hero-label">
-              <span className="status-dot" />
-              Software engineer · UNC–Chapel Hill
-            </div>
-            <h1 id="hero-heading">
-              <span className="hero-line">Making</span>{' '}
-              <span className="hero-line">complex systems</span>{' '}
-              <span className="hero-line hero-line-accent">
-                feel simple.
-                <span className="headline-period" aria-hidden="true">
-                  ✳
-                </span>
-              </span>
-            </h1>
-            <p className="hero-intro">
-              I’m Ayug, a Computer Science and Statistics student at UNC–Chapel Hill. I build
-              full-stack applications, AI-powered tools, and backend systems that turn complicated
-              problems into useful software.
-            </p>
-            <div className="hero-actions">
-              <a className="button primary" href="#work">
-                Explore my work
-                <ArrowDown size={17} />
-              </a>
-              <ConfiguredLink href={site.resume} label="View résumé" className="button secondary" />
-            </div>
-            <div className="social-links">
-              <ConfiguredLink href={site.github} label="GitHub" />
-              <ConfiguredLink href={site.linkedin} label="LinkedIn" />
-              <span className="social-location">Based in North Carolina</span>
-            </div>
-          </Reveal>
-        </div>
-        <Reveal className="hero-atlas" delay={0.12}>
+      <div className="observatory-mast">
+        <span className="observatory-index">AP / ENGINEERING OBSERVATORY</span>
+        <span>SOFTWARE · DATA · INTELLIGENCE</span>
+        <span className="observatory-location">
+          Chapel Hill, NC <span className="tiny-dot" />
+        </span>
+      </div>
+      <div className="hero-layout hero-layout-v3">
+        <Reveal className="hero-mission">
+          <div className="hero-label">
+            <span className="mission-rule" />
+            Ideas, connected. Systems, built.
+          </div>
+          <h1 id="hero-heading">
+            <span className="hero-line">From ideas to</span>{' '}
+            <em className="hero-line">working systems.</em>
+          </h1>
+        </Reveal>
+        <Reveal className="hero-context" delay={0.12}>
+          <p className="hero-intro">
+            I’m Ayug, a Computer Science and Statistics student at UNC–Chapel Hill. I build
+            full-stack applications, AI-powered tools, and backend systems that turn complicated
+            problems into useful software.
+          </p>
+          <a className="explore-action" href="#work" aria-label="Explore projects">
+            <span className="explore-symbol">
+              <ArrowDown size={19} />
+            </span>
+            <span>
+              Explore projects<small>Three complete applications, examined up close</small>
+            </span>
+          </a>
+          <div className="hero-footnote">
+            <span className="footnote-index">01—06</span>
+            <span>
+              Messaging. Applications. Data.
+              <br />
+              Follow the shared engineering.
+            </span>
+          </div>
+        </Reveal>
+        <Reveal className="hero-atlas" delay={0.2}>
           <SystemsAtlas />
         </Reveal>
       </div>
       <div className="hero-bottom">
-        <span>
-          <span className="mini-cross">+</span>Systems thinking. Human outcomes.
-        </span>
+        <span className="hero-signature">Making complex systems feel simple.</span>
+        <SocialLinks className="hero-socials" />
         <a href="#work">
-          Scroll to discover <ArrowDown size={13} />
+          Open the case files
+          <ArrowDown size={13} />
         </a>
-        <span className="hero-bottom-right">PORTFOLIO / VOL. 01 — 2026</span>
       </div>
     </section>
   );
@@ -64,14 +71,19 @@ export function ProjectShowcase() {
     <section id="work" className="section container">
       <SectionHeading
         number="01"
-        label="Selected work"
-        title="Ideas, put into orbit."
-        description="A few things I’ve built. Each one a different problem, connected by the same engineering mindset."
+        label="Engineering case files"
+        title="Open the case files."
+        description="The problem, the decisions, and the system that came out of it. Three builds, examined up close."
       />
-      <div className="projects">
+      <div className="projects case-file-grid">
         {projects.map((p, i) => (
           <Reveal key={p.slug}>
             <article className={`project-row project-row-${i}`}>
+              <div className="case-file-tab">
+                <span>AP—{p.number}</span>
+                <span>ENGINEERING RECORD</span>
+                <span aria-hidden="true">↳</span>
+              </div>
               <Link
                 className="project-art-link"
                 href={`/projects/${p.slug}`}
@@ -103,12 +115,27 @@ export function ProjectShowcase() {
                 <p className="project-tagline">{p.tagline}</p>
                 <p className="project-description">{p.description}</p>
                 <div className="stack">
+                  <span className="stack-field">Built with</span>
                   {p.stack.map((s) => (
                     <span key={s}>{s}</span>
                   ))}
                 </div>
+                <div className="project-record-meta">
+                  <span>
+                    {p.sourceVisibility === 'private'
+                      ? 'Private source · team project'
+                      : 'Public source · team project'}
+                  </span>
+                  <span>
+                    {p.slug === 'tab'
+                      ? 'HackNC 2026 / devnet'
+                      : p.slug === 'gradesense'
+                        ? 'Complete LearnWithAI feature'
+                        : 'FidHacks 2025 / winner'}
+                  </span>
+                </div>
                 <Link href={`/projects/${p.slug}`} className="text-link">
-                  Explore the project
+                  Read case file
                   <ArrowRight size={16} />
                 </Link>
               </div>
@@ -139,8 +166,8 @@ export function ExperienceTimeline() {
       <div className="container">
         <SectionHeading
           number="02"
-          label="Experience"
-          title="Built in the real world."
+          label="Engineering log"
+          title="A record of building."
           description="From industry tooling to scientific research. Taking responsibility for the systems behind the interface."
         />
         <div className="timeline">
@@ -177,6 +204,13 @@ export function ExperienceTimeline() {
                     </div>
                   )}
                 </div>
+                <div className="experience-architecture">
+                  <ArchitectureDiagram
+                    kind={
+                      e.id === 'fidelity' ? 'fidelity' : e.id === 'porch' ? 'porch' : 'research'
+                    }
+                  />
+                </div>
               </article>
             </Reveal>
           ))}
@@ -191,10 +225,10 @@ export function TechnicalProfile() {
       <SectionHeading
         number="03"
         label="About / Technical profile"
-        title="Curiosity, with structure."
+        title="The person behind the systems."
       />
       <div className="about-grid">
-        <Reveal>
+        <Reveal className="about-story">
           <p className="about-lead">
             I like the moment when a complicated problem starts to make sense.
           </p>
@@ -243,22 +277,44 @@ export function ContactFooter() {
     <footer id="contact" className="footer">
       <div className="container">
         <Reveal className="contact-heading">
-          <div>
-            <span className="eyebrow">
-              <span className="status-dot" />
-              Let’s connect
+          <div className="contact-coordinate">
+            <span>04 / OPEN CHANNEL</span>
+            <span className="contact-signal" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
             </span>
-            <h2>
-              Good things start
-              <br />
-              with a conversation<span>.</span>
-            </h2>
+            <span>Chapel Hill → wherever you are</span>
           </div>
-          <ConfiguredLink
-            href={site.email ? `mailto:${site.email}` : null}
-            label="Say hello"
-            className="contact-button"
-          />
+          <div className="contact-message">
+            <span className="eyebrow">Have something in mind?</span>
+            <h2>
+              Let’s connect
+              <br />
+              <em>the next dot.</em>
+            </h2>
+            <ConfiguredLink
+              href={site.email ? `mailto:${site.email}` : null}
+              label="Start a conversation"
+              className="contact-button"
+              icon={false}
+            >
+              <span aria-hidden="true">Start a conversation</span>
+              <ArrowRight size={20} />
+            </ConfiguredLink>
+          </div>
+          <div className="contact-dock">
+            <span className="eyebrow">Elsewhere on the internet</span>
+            <SocialLinks />
+            <ConfiguredLink
+              href={site.resume}
+              label="Résumé.pdf"
+              className="footer-document"
+              icon={false}
+            />
+          </div>
         </Reveal>
         <div className="footer-bottom">
           <Link href="/" className="footer-name">
@@ -266,8 +322,6 @@ export function ContactFooter() {
           </Link>
           <span className="footer-note">Designed as a system. Built with intention.</span>
           <div className="footer-links">
-            <ConfiguredLink href={site.github} label="GitHub" />
-            <ConfiguredLink href={site.linkedin} label="LinkedIn" />
             <a href="#top">
               Back to top
               <ArrowUp size={14} />
@@ -276,5 +330,48 @@ export function ContactFooter() {
         </div>
       </div>
     </footer>
+  );
+}
+
+export function EngineeringArchive() {
+  return (
+    <section id="archive" className="section container engineering-archive">
+      <SectionHeading
+        number="A"
+        label="Engineering archive"
+        title="Smaller builds. Useful experiments."
+        description="Public repositories beyond the featured work, with their implementation scope kept visible."
+      />
+      <div className="archive-records">
+        {engineeringArchive.map((entry, i) => (
+          <Reveal key={entry.name}>
+            <article className="archive-record">
+              <span className="archive-index">A—0{i + 1}</span>
+              <div>
+                <span className="eyebrow">{entry.kind}</span>
+                <h3>
+                  <a href={entry.url} target="_blank" rel="noopener noreferrer">
+                    {entry.name}
+                    <ArrowUpRight size={19} />
+                  </a>
+                </h3>
+                <p>{entry.description}</p>
+                <div className="archive-stack">{entry.stack.join(' / ')}</div>
+                <p className="archive-limitation">{entry.limitation}</p>
+              </div>
+            </article>
+          </Reveal>
+        ))}
+      </div>
+      <a
+        className="text-link archive-github"
+        href={site.github!}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Browse the GitHub profile
+        <ArrowUpRight size={15} />
+      </a>
+    </section>
   );
 }

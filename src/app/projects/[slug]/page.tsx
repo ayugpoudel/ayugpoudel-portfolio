@@ -2,9 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Trophy } from 'lucide-react';
-import { projects } from '@/data/site';
+import { projects, site } from '@/data/site';
 import { ProjectVisual } from '@/components/project-visual';
 import { Reveal } from '@/components/ui';
+import { caseStudies } from '@/data/case-studies';
+import { ArchitectureDiagram, StudyFigureLabel } from '@/components/engineering-diagrams';
+import { MessagePipeline, GradingWorkflow } from '@/components/workflow-explorer';
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
@@ -19,7 +22,17 @@ export async function generateMetadata({
     ? {
         title: `${p.name} · Engineering case study`,
         description: p.description,
-        openGraph: { title: `${p.name} — Ayug Poudel`, description: p.description },
+        ...(site.url ? { alternates: { canonical: `/projects/${p.slug}` } } : {}),
+        openGraph: {
+          title: `${p.name} — Ayug Poudel`,
+          description: p.description,
+          ...(site.url ? { url: `${site.url}/projects/${p.slug}` } : {}),
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: `${p.name} — Ayug Poudel`,
+          description: p.description,
+        },
       }
     : { title: 'Project not found' };
 }
@@ -28,6 +41,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const p = projects.find((p) => p.slug === slug);
   if (!p) notFound();
   const next = projects[(projects.indexOf(p) + 1) % projects.length];
+  const study = caseStudies[p.slug];
   return (
     <article className="case-study container">
       <div className="case-topline">
@@ -35,9 +49,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <ArrowLeft size={15} />
           All selected work
         </Link>
-        <span className="eyebrow">CASE STUDY / {p.number}</span>
+        <span className="eyebrow">AP—{p.number} / ENGINEERING CASE FILE</span>
       </div>
-      <Reveal>
+      <Reveal className="case-cover">
         <div className="eyebrow case-category">{p.category}</div>
         <h1 className="case-title">
           {p.name}
@@ -51,6 +65,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             {p.award}
           </div>
         )}
+        <p className="case-collaboration">{p.collaboration}</p>
         <div className="case-meta">
           <div>
             <span className="eyebrow">Built with</span>
@@ -61,41 +76,78 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
           <div className="project-availability">
+            {p.video && (
+              <a href={p.video} target="_blank" rel="noopener noreferrer">
+                Watch demo
+                <ArrowUpRight size={15} />
+              </a>
+            )}
             {p.github ? (
               <a href={p.github} target="_blank" rel="noopener noreferrer">
                 View source
                 <ArrowUpRight size={15} />
               </a>
             ) : (
-              <span>Source link · not yet added</span>
+              <span>
+                {p.sourceVisibility === 'private'
+                  ? 'Private team repository'
+                  : 'Source not published'}
+              </span>
             )}
             {p.demo ? (
               <a href={p.demo} target="_blank" rel="noopener noreferrer">
-                Live demo
+                Visit deployment
                 <ArrowUpRight size={15} />
               </a>
             ) : (
-              <span>Live demo · not yet added</span>
+              <span>No public live demo</span>
             )}
           </div>
         </div>
       </Reveal>
       <Reveal className="case-visual">
-        <ProjectVisual slug={p.slug} large />
-        <p>
-          Illustrative system diagram · {p.name}. This is a conceptual overview, not a product
-          screenshot.
-        </p>
+        {p.slug === 'tab' ? (
+          <MessagePipeline />
+        ) : p.slug === 'gradesense' ? (
+          <GradingWorkflow />
+        ) : (
+          <ProjectVisual slug={p.slug} large />
+        )}
+        <StudyFigureLabel />
       </Reveal>
+      <div className="study-scope">
+        <div>
+          <span className="eyebrow">Project scope</span>
+          <p>{study.scope}</p>
+        </div>
+        <div>
+          <span className="eyebrow">Team and contribution</span>
+          <p>{study.attribution}</p>
+        </div>
+      </div>
+      <details className="mobile-study-contents">
+        <summary>
+          Inside this case file{' '}
+          <span>{String(study.sections.length).padStart(2, '0')} sections</span>
+        </summary>
+        <nav aria-label="Mobile case study contents">
+          {study.sections.map((section, i) => (
+            <a key={section.id} href={`#${section.id}`}>
+              {String(i + 1).padStart(2, '0')} / {section.title}
+            </a>
+          ))}
+        </nav>
+      </details>
       <div className="case-body">
         <aside className="case-sidebar">
-          <span className="eyebrow">Inside the build</span>
+          <span className="eyebrow">Inside the application</span>
           <nav aria-label="Case study contents">
-            <a href="#problem">01 / The problem</a>
-            <a href="#approach">02 / Engineering approach</a>
-            <a href="#decisions">03 / Technical decisions</a>
-            <a href="#challenges">04 / Challenges & solutions</a>
-            <a href="#outcomes">05 / Outcomes</a>
+            {study.sections.map((section, i) => (
+              <a key={section.id} href={`#${section.id}`}>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {section.title}
+              </a>
+            ))}
           </nav>
           <div className="case-features">
             <span className="eyebrow">At a glance</span>
@@ -105,51 +157,66 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         </aside>
         <div className="case-prose">
-          <Reveal>
-            <section id="problem">
-              <span className="eyebrow">01 / Context</span>
-              <h2>The problem</h2>
-              <p>{p.problem}</p>
-            </section>
-          </Reveal>
-          <Reveal>
-            <section id="approach">
-              <span className="eyebrow">02 / Implementation</span>
-              <h2>The engineering approach</h2>
-              <p>{p.approach}</p>
-            </section>
-          </Reveal>
-          <Reveal>
-            <section id="decisions">
-              <span className="eyebrow">03 / Under the hood</span>
-              <h2>Decisions that shaped the build</h2>
-              <div className="decision-list">
-                {p.decisions.map((d, i) => (
-                  <div key={d.title}>
-                    <span>0{i + 1}</span>
-                    <div>
-                      <h3>{d.title}</h3>
-                      <p>{d.text}</p>
-                    </div>
+          {study.sections.map((section, i) => (
+            <Reveal key={section.id}>
+              <section id={section.id} className="study-section">
+                <span className="eyebrow">
+                  {String(i + 1).padStart(2, '0')} / {section.kicker}
+                </span>
+                <h2>{section.title}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {section.steps && (
+                  <ol className="study-steps">
+                    {section.steps.map((step, n) => (
+                      <li key={step}>
+                        <span>{String(n + 1).padStart(2, '0')}</span>
+                        <p>{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                {section.items && (
+                  <div className="study-items">
+                    {section.items.map((item) => (
+                      <div key={item.title}>
+                        <h3>{item.title}</h3>
+                        <p>{item.text}</p>
+                      </div>
+                    ))}
                   </div>
+                )}
+                {section.diagram &&
+                  (section.diagram === 'tab' ? (
+                    <MessagePipeline />
+                  ) : (
+                    <ArchitectureDiagram kind={section.diagram} />
+                  ))}
+                {section.note && (
+                  <aside className="study-note">
+                    <span>Engineering note</span>
+                    <p>{section.note}</p>
+                  </aside>
+                )}
+              </section>
+            </Reveal>
+          ))}
+          <section className="study-evidence" aria-labelledby="study-evidence-heading">
+            <span className="eyebrow">Reading the source</span>
+            <h2 id="study-evidence-heading">Evidence & scope</h2>
+            <p>{study.evidence}</p>
+            {study.sources.length > 0 && (
+              <div className="evidence-links">
+                {study.sources.map((source) => (
+                  <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer">
+                    {source.label}
+                    <ArrowUpRight size={14} />
+                  </a>
                 ))}
               </div>
-            </section>
-          </Reveal>
-          <Reveal>
-            <section id="challenges">
-              <span className="eyebrow">04 / Tradeoffs</span>
-              <h2>Challenges & solutions</h2>
-              <p>{p.challenge}</p>
-            </section>
-          </Reveal>
-          <Reveal>
-            <section id="outcomes">
-              <span className="eyebrow">05 / Result</span>
-              <h2>What came out of it</h2>
-              <p>{p.outcome}</p>
-            </section>
-          </Reveal>
+            )}
+          </section>
         </div>
       </div>
       <Link className="next-project" href={`/projects/${next.slug}`}>

@@ -25,16 +25,19 @@ npm run start
 All content and external links live in `src/data/site.ts`:
 
 - `site`: name, description, email, GitHub, LinkedIn, résumé URL, and production origin.
-- `projects`: the three case studies, technologies, and optional public source/demo URLs.
+- `projects`: featured-project summaries, technologies, attribution, and verified public source/demo URLs.
+- `src/data/case-studies.ts`: complete technical narratives, sources, evidence notes, and archive entries.
+- `src/data/diagrams.ts`: original architecture and workflow diagram content.
 - `experiences`, `skills`, and `disciplines`: professional background and atlas categories.
+- `src/data/atlas.ts`: overlapping project disciplines for multi-category filtering.
 
-**Finish these placeholders before publishing:** set the verified email, GitHub, LinkedIn, and résumé links; add public project source/demo URLs where available. `null` is intentional: missing site links open an availability dialog, and case studies explicitly identify unavailable links. No fake external URLs are included. Add your real résumé PDF to `public/resume.pdf` and set `site.resume` to `/resume.pdf` when ready.
+**Before publishing:** add the real résumé PDF and verified production origin. Email, GitHub, LinkedIn, TAB source/video/deployment, EmpowHER source, and archive repository links are now configured from verified or supplied sources. GradeSense stays private. `null` is intentional: missing site links open an availability dialog, and case studies explicitly identify unavailable links. No fake external URLs are included. Add your real résumé PDF to `public/resume.pdf` and set `site.resume` to `/resume.pdf` when ready.
 
 Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SITE_URL` to the verified production origin, without a trailing slash. On Vercel, the production project URL is also used as a metadata fallback. Without a configured origin, local metadata uses localhost and the sitemap remains empty rather than advertising an invented domain.
 
 ## Orbital interaction
 
-`src/components/systems-atlas.tsx` owns the planetary map. Six planets follow intentional tilted elliptical paths. Positions update directly on SVG groups through `requestAnimationFrame`; React does not rerender every frame. Hovering or focusing a planet eases orbital speed toward 10%, and leaving eases it back to full speed. Project previews persist so visitors can follow their links. Labels choose positions around neighboring planets and annotations.
+`src/components/systems-atlas.tsx` owns the planetary map. Six project planets follow intentional tilted elliptical paths around a single black-hole shadow, framed by a lensed accretion disk, narrow jets, and four orbiting star markers. Positions update directly on SVG groups through `requestAnimationFrame`; React does not rerender every frame. Hovering or focusing a planet eases orbital speed toward 10%, and leaving eases it back to full speed. Project previews persist so visitors can follow their links. Labels choose positions around neighboring planets and annotations.
 
 The motion control stops orbit and signal animation. Reduced-motion preferences produce stationary planets and remove scroll/entrance movement. The animation skips elapsed background-tab time. Mobile includes a direct project directory below the compact map; all project links work independently of animation.
 
@@ -45,7 +48,8 @@ src/app/                     Homepage, metadata, loading/error/404 states
 src/app/projects/[slug]/     Statically generated engineering case studies
 src/components/              Atlas, navigation, diagrams, shared UI and sections
 src/data/site.ts             Typed, editable content and link configuration
-src/app/globals.css          Visual system and responsive layouts
+src/app/globals.css          Shared styles, diagrams, and case-study primitives
+src/app/observatory.css      V2 identity, composition, and responsive layouts
 scripts/capture-preview.mjs  Optional local screenshot capture
 ```
 
@@ -62,19 +66,33 @@ npm run test:e2e
 
 The browser suite starts the production server automatically if none is running. Build first, and stop any development server before production verification. Local tests use installed Google Chrome. CI installs Playwright Chromium instead. Tests cover all case-study routes, unknown routes, metadata, keyboard navigation, orbital slowdown and motion controls, reduced motion, configuration dialogs, responsive overflow at 320–1440 px, mobile navigation, JavaScript-disabled content, and axe accessibility checks.
 
-`npm run preview:capture` captures local screenshots in `/tmp` with an existing preview server. GitHub Actions runs the checks and browser suite on pushes and pull requests.
+`npm run preview:capture` captures homepage screenshots in `/tmp` with an existing preview server. `npm run preview:cases` captures all three case studies and key GradeSense diagrams at desktop, laptop, tablet, and mobile widths. GitHub Actions runs the checks and browser suite on pushes and pull requests.
 
 ## GitHub and Vercel
 
-This repository is prepared locally; nothing is pushed or deployed automatically.
+The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.vercel.app. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification and remaining GitHub/custom-domain steps.
 
-1. Review content and set the verified links above.
-2. Create an empty GitHub repository and add its real URL as `origin`.
-3. Commit and push when ready.
-4. Import that repository in Vercel, select the Next.js framework preset and Node.js 22, and set `NEXT_PUBLIC_SITE_URL`.
-5. Use the default `npm run build` build command and framework-managed output. No custom `vercel.json` is needed.
-6. Review the Vercel preview before promoting production.
+1. Confirm which résumé PDF to publish; the availability dialog remains until configured.
+2. Approve repository creation and visibility before creating `ayugpoudel/ayugpoudel-portfolio`.
+3. Complete GitHub CLI authentication, then push the existing `main` history without force-pushing.
+4. Connect that repository to the existing Vercel project with native Git integration. Do not create a second Vercel project.
+5. Keep Next.js defaults, Node.js 22, and `npm run build`. `NEXT_PUBLIC_SITE_URL` is configured on Vercel as `https://ayugpoudel.vercel.app`. No custom `vercel.json` is needed.
+6. After purchasing an approved custom domain, verify ownership, use Vercel's exact requested DNS records, and update `NEXT_PUBLIC_SITE_URL` before redeploying.
 
 The GitHub workflow only checks the code; it does not deploy it.
 
+Run the same browser suite against a deployed site with:
+
+```sh
+PLAYWRIGHT_BASE_URL=https://ayugpoudel.vercel.app npm run test:e2e
+```
+
+Remote verification skips the local server. Preview builds emit `noindex` metadata and disallow crawling; production uses route-specific canonical URLs. `.vercelignore` excludes local environment files and generated test/build artifacts from CLI uploads.
+
 The dependency override for `@typescript-eslint/typescript-estree` uses the patched `minimatch` 11 release to address GHSA-g3hv-75wg-m249 in the lint tooling. Lint and TypeScript checks verify the override; no runtime dependency is affected.
+
+## V3 / Complete engineering case studies
+
+GradeSense includes the full 13-section application case study, student/instructor workflow explorer, architecture and database views, AI boundaries, attribution, and testing observations. TAB uses the specified public Node/Hono/SQLite implementation and an interactive message-to-ledger pipeline. EmpowHER distinguishes the product scope from browser scoring and the external chat API contract present in its public source.
+
+The atlas retains the black-hole observatory and original smooth orbiting behavior. Hover/focus reveals shared-tool connections; its readout shows technologies, related projects, and direct case-study navigation. All diagrams are original illustrations. See `docs/SOURCE_REVIEW.md` for evidence and privacy decisions. No private screenshots or private source files are bundled.
