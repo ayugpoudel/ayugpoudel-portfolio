@@ -1,6 +1,6 @@
 # Deployment handoff
 
-Deployment work performed November 5, 2026. No custom domain has been purchased or configured.
+Deployment work performed November 5, 2026. The owner purchased `ayugpoudel.dev` through Vercel, and the domain is connected to the existing portfolio project with HTTPS.
 
 ## Existing infrastructure
 
@@ -12,10 +12,11 @@ Deployment work performed November 5, 2026. No custom domain has been purchased 
 - Vercel account: `ayugpoudel`; team: `app-f572` (App), Hobby
 - Vercel project: `ayugpoudel`
 - Project dashboard: https://vercel.com/app-f572/ayugpoudel
-- Production alias: https://ayugpoudel.vercel.app
+- Production domain: https://ayugpoudel.dev
+- Vercel fallback alias: https://ayugpoudel.vercel.app
 - Verified preview: https://ayugpoudel-jjepoalyq-app-f572.vercel.app
 - No application secrets, database, or authentication service required.
-- `NEXT_PUBLIC_SITE_URL` is public configuration, set to `https://ayugpoudel.vercel.app` in Production and Preview.
+- `NEXT_PUBLIC_SITE_URL` is public configuration, set to `https://ayugpoudel.dev` in Production and Preview.
 - `.vercel/` and `.env.local` are ignored. Neither contains material intended for GitHub or deployment uploads.
 
 Vercel assigned its first deployment to production automatically. An explicitly targeted Preview deployment was then created and verified before the final production release.
@@ -45,13 +46,15 @@ Final production release: https://ayugpoudel-dvmuterqg-app-f572.vercel.app (depl
 - Desktop and mobile production screenshots were captured outside the repository for review.
 - The owner approved `/Users/ayugpoudel/Desktop/Ayug_Poudel_Resume.pdf`. It is copied byte-for-byte to `public/resume.pdf` and configured as `/resume.pdf`, opening in a new tab. Local verification passed: HTTP 200, `application/pdf`, and a valid PDF header. Lint, TypeScript, production build, and the updated navigation test passed.
 
-A later screenshot navigation timed out. Follow-up requests to the production alias, direct deployment hostname, and the separate Vercel API also timed out before connecting, although DNS resolved. The earlier production checks above were performed successfully; current reachability could not be reconfirmed from this connection. Recheck the public URL and Vercel dashboard after connectivity recovers. No application change was made in response to these connection timeouts.
+The initial session experienced later connection timeouts. Subsequent deployment and résumé verification succeeded, so that earlier connectivity limitation is resolved.
 
 ## GitHub integration
 
 No Git remote existed at audit time. The owner approved a public repository, now created at https://github.com/ayugpoudel/ayugpoudel-portfolio with the existing local repository connected as `origin`. Existing history is preserved.
 
-GitHub CLI is installed and authenticated as `ayugpoudel`. Never paste credentials into source, command output, or chat. The first Vercel Git connection attempt failed against the empty repository. After pushing `main`, retry the connection using:
+GitHub CLI is installed and authenticated as `ayugpoudel`, and the existing history and approved PDF have been pushed to `main`. [GitHub Actions](https://github.com/ayugpoudel/ayugpoudel-portfolio/actions/runs/42088042411) passed installation, lint, type checking, build, and all 13 browser tests (22.2 seconds). Never paste credentials into source, command output, or chat.
+
+Vercel Git connection attempts failed both before and after the initial push. A direct project API check confirmed `link: null`; automatic Git deployments are not yet configured. The owner has been asked to connect the repository at https://vercel.com/app-f572/ayugpoudel/settings/git and authorize Vercel's GitHub app if prompted. [Vercel's repository-access guide](https://vercel.com/kb/guide/unable-to-find-github-repository) explains the required app access. Retry after authorization:
 
 ```sh
 vercel git connect https://github.com/ayugpoudel/ayugpoudel-portfolio.git --project ayugpoudel
@@ -59,18 +62,22 @@ vercel git connect https://github.com/ayugpoudel/ayugpoudel-portfolio.git --proj
 
 Confirm production branch `main` in Vercel and verify a Git-triggered deployment. Native integration should handle production on `main` and previews on branches/PRs. The existing GitHub Actions workflow performs quality checks only; do not add a second deployment pipeline.
 
-## Domain quotes and remaining steps
+## Résumé update
 
-Vercel CLI confirmed all three available on November 5, 2026. Quotes are USD for a one-year term; availability and prices may change before purchase.
+The résumé preview at https://ayugpoudel-jig1y9gec-app-f572.vercel.app completed successfully after waiting for Vercel initialization. Its live navigation/PDF test passed: the résumé anchor opens in a new tab, the file returns HTTP 200 with `application/pdf`, and the response has a PDF header. The first remote test ran while Vercel still showed its build-in-progress page; it was rerun successfully after readiness.
 
-| Domain         | Initial registration | Annual renewal |
-| -------------- | -------------------: | -------------: |
-| ayugpoudel.dev |                $9.99 |         $13.00 |
-| ayugpoudel.com |               $12.03 |         $12.03 |
-| ayugpoudel.me  |               $13.99 |         $20.00 |
+Local Vercel output was also generated while waiting for the remote builder. Environment files remain excluded by `.vercelignore`, and no environment files were present in the generated output. Next.js function traces explicitly exclude local environment files. Vercel's generated `.vc-config.json` still listed local environment paths: the prebuilt production upload failed with `ENOENT` for an excluded environment example file. No excluded environment files were uploaded, and the prior production deployment was retained. Use the normal hosted `vercel deploy --prod` build, which does not receive the local environment files, rather than weakening exclusions. Generated `.vercel` output is excluded from linting, formatting, and Git.
 
-[Vercel's pricing table](https://vercel.com/domains/pricing) lists WHOIS privacy as included for these TLDs, without a separate privacy fee. Applicable taxes and the final total must be checked at checkout. Registration and renewal terms require owner approval; no purchase or recurring-charge authorization has been initiated.
+## Custom domain
 
-The owner must approve the domain and complete purchase, payment, and any registrant verification. Then add apex and `www` to this existing project, use Vercel-provided project-specific records, and preserve unrelated DNS. Prefer the apex as canonical with `www` redirecting to it. Verify DNS and HTTPS before changing `NEXT_PUBLIC_SITE_URL`, redeploy, and verify canonicals, sitemap, robots, Open Graph, and redirects again. Until then, retain the verified Vercel alias.
+The owner purchased `ayugpoudel.dev` through Vercel on November 5, 2026. CLI inspection confirms ownership under `app-f572`, registrar Vercel, expiration November 5, 2027, and a quoted renewal price of $13 USD. The owner completed the purchase; no purchase or renewal was initiated by the assistant.
 
-No `.portfolio` domain is used. No assumed DNS values or future domain URLs are hardcoded in application metadata.
+- Both apex and `www` are attached to the existing `ayugpoudel` project and verified by Vercel.
+- DNS is managed by Vercel, with public nameservers `ns1.vercel-dns.com` and `ns2.vercel-dns.com` confirmed through DNS resolution.
+- https://ayugpoudel.dev returned HTTP 200 with normal HTTPS certificate validation.
+- https://www.ayugpoudel.dev returned HTTP 308 to https://ayugpoudel.dev/.
+- `NEXT_PUBLIC_SITE_URL` was updated in Production and Preview after domain and HTTPS verification.
+- No unrelated DNS records were modified; no generic DNS records were guessed or manually substituted.
+- Initial registrar-email inspection was pending because Vercel reports that status 30 minutes after purchase. The owner should complete any registrant verification requested by Vercel or the registrar.
+
+No `.portfolio` domain is used. Keep the apex domain as canonical and retain the `www` redirect.

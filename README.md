@@ -70,21 +70,21 @@ The browser suite starts the production server automatically if none is running.
 
 ## GitHub and Vercel
 
-The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.vercel.app. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification and remaining GitHub/custom-domain steps.
+The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.dev. The `www` hostname redirects permanently to the apex. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification and the remaining GitHub authorization step.
 
 1. Public repository: https://github.com/ayugpoudel/ayugpoudel-portfolio, created with owner approval.
 2. Keep updates on the existing `main` history without force-pushing.
 3. GitHub CLI authentication is configured locally; never commit credentials.
 4. Verify the repository connection to the existing Vercel project with native Git integration. Do not create a second Vercel project.
-5. Keep Next.js defaults, Node.js 22, and `npm run build`. `NEXT_PUBLIC_SITE_URL` is configured on Vercel as `https://ayugpoudel.vercel.app`. No custom `vercel.json` is needed.
-6. After purchasing an approved custom domain, verify ownership, use Vercel's exact requested DNS records, and update `NEXT_PUBLIC_SITE_URL` before redeploying.
+5. Keep Next.js defaults, Node.js 22, and `npm run build`. `NEXT_PUBLIC_SITE_URL` is configured on Vercel as `https://ayugpoudel.dev`. No custom `vercel.json` is needed.
+6. Keep Vercel-managed DNS for the registered domain. Review registration/verification messages in the owner's account. Redeploy after changing production metadata configuration.
 
 The GitHub workflow only checks the code; it does not deploy it.
 
 Run the same browser suite against a deployed site with:
 
 ```sh
-PLAYWRIGHT_BASE_URL=https://ayugpoudel.vercel.app npm run test:e2e
+PLAYWRIGHT_BASE_URL=https://ayugpoudel.dev npm run test:e2e
 ```
 
 Remote verification skips the local server. Preview builds emit `noindex` metadata and disallow crawling; production uses route-specific canonical URLs. `.vercelignore` excludes local environment files and generated test/build artifacts from CLI uploads.
