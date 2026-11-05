@@ -77,15 +77,17 @@ test('reduced motion preserves a stationary, navigable atlas', async ({ page }) 
   await expect(page).toHaveURL('/projects/tab');
 });
 
-test('navigation, honest configuration dialog, and discipline controls', async ({ page }) => {
+test('navigation, published résumé, and discipline controls', async ({ page, request }) => {
   await page.goto('/');
-  await page
+  const resume = page
     .getByRole('navigation', { name: 'Main navigation' })
-    .getByRole('button', { name: 'Résumé.pdf' })
-    .click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog')).not.toBeVisible();
+    .getByRole('link', { name: 'Résumé.pdf' });
+  await expect(resume).toHaveAttribute('href', '/resume.pdf');
+  await expect(resume).toHaveAttribute('target', '_blank');
+  const pdf = await request.get('/resume.pdf');
+  expect(pdf.status()).toBe(200);
+  expect(pdf.headers()['content-type']).toContain('application/pdf');
+  expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
   await page.getByRole('button', { name: 'Data & research', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Data & research', exact: true })).toHaveAttribute(
     'aria-pressed',

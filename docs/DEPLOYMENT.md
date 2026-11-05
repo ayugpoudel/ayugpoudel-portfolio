@@ -43,15 +43,15 @@ Final production release: https://ayugpoudel-dvmuterqg-app-f572.vercel.app (depl
 - Preview pages use the production canonicals and `noindex, follow`.
 - Preview authentication protection was disabled for this public portfolio to allow unauthenticated browser verification.
 - Desktop and mobile production screenshots were captured outside the repository for review.
-- Resume asset verification remains pending confirmation of the correct PDF; the UI explicitly identifies it as unavailable rather than linking to a missing file.
+- The owner approved `/Users/ayugpoudel/Desktop/Ayug_Poudel_Resume.pdf`. It is copied byte-for-byte to `public/resume.pdf` and configured as `/resume.pdf`, opening in a new tab. Local verification passed: HTTP 200, `application/pdf`, and a valid PDF header. Lint, TypeScript, production build, and the updated navigation test passed.
 
 A later screenshot navigation timed out. Follow-up requests to the production alias, direct deployment hostname, and the separate Vercel API also timed out before connecting, although DNS resolved. The earlier production checks above were performed successfully; current reachability could not be reconfirmed from this connection. Recheck the public URL and Vercel dashboard after connectivity recovers. No application change was made in response to these connection timeouts.
 
-## GitHub integration pending approval/authentication
+## GitHub integration
 
-No Git remote existed at audit time. Proposed repository: `ayugpoudel/ayugpoudel-portfolio`. Do not create it or select visibility until the owner explicitly approves.
+No Git remote existed at audit time. The owner approved a public repository, now created at https://github.com/ayugpoudel/ayugpoudel-portfolio with the existing local repository connected as `origin`. Existing history is preserved.
 
-GitHub CLI is installed and authenticated as `ayugpoudel`. Never paste credentials into source, command output, or chat. After visibility approval, create the repository with the chosen visibility, preserve the existing `main` history, push, and connect it using:
+GitHub CLI is installed and authenticated as `ayugpoudel`. Never paste credentials into source, command output, or chat. The first Vercel Git connection attempt failed against the empty repository. After pushing `main`, retry the connection using:
 
 ```sh
 vercel git connect https://github.com/ayugpoudel/ayugpoudel-portfolio.git --project ayugpoudel

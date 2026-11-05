@@ -31,7 +31,7 @@ All content and external links live in `src/data/site.ts`:
 - `experiences`, `skills`, and `disciplines`: professional background and atlas categories.
 - `src/data/atlas.ts`: overlapping project disciplines for multi-category filtering.
 
-**Before publishing:** add the real résumé PDF and verified production origin. Email, GitHub, LinkedIn, TAB source/video/deployment, EmpowHER source, and archive repository links are now configured from verified or supplied sources. GradeSense stays private. `null` is intentional: missing site links open an availability dialog, and case studies explicitly identify unavailable links. No fake external URLs are included. Add your real résumé PDF to `public/resume.pdf` and set `site.resume` to `/resume.pdf` when ready.
+The approved résumé is published at `public/resume.pdf`, and `site.resume` points to `/resume.pdf`. Navigation and footer links open the PDF in a new tab. To update it, replace that file. Email, GitHub, LinkedIn, TAB source/video/deployment, EmpowHER source, and archive repository links are configured from verified or supplied sources. GradeSense stays private. `null` is intentional for unavailable links; case studies identify unpublished sources instead of using fake URLs.
 
 Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SITE_URL` to the verified production origin, without a trailing slash. On Vercel, the production project URL is also used as a metadata fallback. Without a configured origin, local metadata uses localhost and the sitemap remains empty rather than advertising an invented domain.
 
@@ -72,10 +72,10 @@ The browser suite starts the production server automatically if none is running.
 
 The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.vercel.app. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification and remaining GitHub/custom-domain steps.
 
-1. Confirm which résumé PDF to publish; the availability dialog remains until configured.
-2. Approve repository creation and visibility before creating `ayugpoudel/ayugpoudel-portfolio`.
-3. Complete GitHub CLI authentication, then push the existing `main` history without force-pushing.
-4. Connect that repository to the existing Vercel project with native Git integration. Do not create a second Vercel project.
+1. Public repository: https://github.com/ayugpoudel/ayugpoudel-portfolio, created with owner approval.
+2. Keep updates on the existing `main` history without force-pushing.
+3. GitHub CLI authentication is configured locally; never commit credentials.
+4. Verify the repository connection to the existing Vercel project with native Git integration. Do not create a second Vercel project.
 5. Keep Next.js defaults, Node.js 22, and `npm run build`. `NEXT_PUBLIC_SITE_URL` is configured on Vercel as `https://ayugpoudel.vercel.app`. No custom `vercel.json` is needed.
 6. After purchasing an approved custom domain, verify ownership, use Vercel's exact requested DNS records, and update `NEXT_PUBLIC_SITE_URL` before redeploying.
 

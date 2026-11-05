@@ -14,7 +14,7 @@ export const site = {
   email: 'ayugpoudel@gmail.com' as string | null,
   github: 'https://github.com/ayugpoudel' as string | null,
   linkedin: 'https://www.linkedin.com/in/ayugp/' as string | null,
-  resume: null as string | null,
+  resume: '/resume.pdf' as string | null,
 };
 export type Category = 'ai' | 'fullstack' | 'backend' | 'data';
 export const disciplines: { id: Category; label: string; color: string }[] = [
