@@ -70,12 +70,12 @@ The browser suite starts the production server automatically if none is running.
 
 ## GitHub and Vercel
 
-The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.dev. The `www` hostname redirects permanently to the apex. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification and the remaining GitHub authorization step.
+The portfolio is deployed to Vercel project `ayugpoudel`: https://ayugpoudel.dev. The `www` hostname redirects permanently to the apex. Native GitHub integration is connected: pushes to `main` deploy production, and other branches/PRs use Vercel previews. See [deployment status and handoff](docs/DEPLOYMENT.md) for verification.
 
 1. Public repository: https://github.com/ayugpoudel/ayugpoudel-portfolio, created with owner approval.
 2. Keep updates on the existing `main` history without force-pushing.
 3. GitHub CLI authentication is configured locally; never commit credentials.
-4. Verify the repository connection to the existing Vercel project with native Git integration. Do not create a second Vercel project.
+4. Keep the existing native GitHub connection to Vercel project `ayugpoudel`, with production branch `main`. Do not create a second deployment pipeline.
 5. Keep Next.js defaults, Node.js 22, and `npm run build`. `NEXT_PUBLIC_SITE_URL` is configured on Vercel as `https://ayugpoudel.dev`. No custom `vercel.json` is needed.
 6. Keep Vercel-managed DNS for the registered domain. Review registration/verification messages in the owner's account. Redeploy after changing production metadata configuration.
 

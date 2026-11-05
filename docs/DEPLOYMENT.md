@@ -54,17 +54,15 @@ No Git remote existed at audit time. The owner approved a public repository, now
 
 GitHub CLI is installed and authenticated as `ayugpoudel`, and the existing history and approved PDF have been pushed to `main`. [GitHub Actions](https://github.com/ayugpoudel/ayugpoudel-portfolio/actions/runs/42088042411) passed installation, lint, type checking, build, and all 13 browser tests (22.2 seconds). Never paste credentials into source, command output, or chat.
 
-Vercel Git connection attempts failed both before and after the initial push. A direct project API check confirmed `link: null`; automatic Git deployments are not yet configured. The owner has been asked to connect the repository at https://vercel.com/app-f572/ayugpoudel/settings/git and authorize Vercel's GitHub app if prompted. [Vercel's repository-access guide](https://vercel.com/kb/guide/unable-to-find-github-repository) explains the required app access. Retry after authorization:
+The owner completed Vercel's GitHub authorization and repository connection. A project API check confirms the GitHub link to `ayugpoudel/ayugpoudel-portfolio` and production branch `main`.
 
-```sh
-vercel git connect https://github.com/ayugpoudel/ayugpoudel-portfolio.git --project ayugpoudel
-```
-
-Confirm production branch `main` in Vercel and verify a Git-triggered deployment. Native integration should handle production on `main` and previews on branches/PRs. The existing GitHub Actions workflow performs quality checks only; do not add a second deployment pipeline.
+Native Git deployment was verified: deployment `dpl_AEw56hFLK18WYMnFv55phq7MP8xe`, https://ayugpoudel-pmjlqjqa9-app-f572.vercel.app, reports `source: git`, `target: production`, `readyState: READY`, branch `main`, and commit `1ed4dfa56d4c8e79ac8ef4b87cbd7e32ad065159`. It serves the verified custom-domain metadata. Native Vercel integration handles production pushes and branch/PR previews; a separate branch/PR trigger was not exercised during this session. The existing GitHub Actions workflow performs quality checks only; no duplicate deployment pipeline is configured.
 
 ## Résumé update
 
 The résumé preview at https://ayugpoudel-jig1y9gec-app-f572.vercel.app completed successfully after waiting for Vercel initialization. Its live navigation/PDF test passed: the résumé anchor opens in a new tab, the file returns HTTP 200 with `application/pdf`, and the response has a PDF header. The first remote test ran while Vercel still showed its build-in-progress page; it was rerun successfully after readiness.
+
+Hosted production deployment https://ayugpoudel-ad7vll7bv-app-f572.vercel.app succeeded, and all 13 production-browser tests passed in 26.0 seconds. The résumé response is byte-for-byte identical to the approved PDF (153,054 bytes; SHA-256 `efb2e456adddda6f63283c3340e2a1a126bcf09cc862d1b9edf25762f8caa213`). The same PDF was verified at https://ayugpoudel.dev/resume.pdf after the native Git deployment.
 
 Local Vercel output was also generated while waiting for the remote builder. Environment files remain excluded by `.vercelignore`, and no environment files were present in the generated output. Next.js function traces explicitly exclude local environment files. Vercel's generated `.vc-config.json` still listed local environment paths: the prebuilt production upload failed with `ENOENT` for an excluded environment example file. No excluded environment files were uploaded, and the prior production deployment was retained. Use the normal hosted `vercel deploy --prod` build, which does not receive the local environment files, rather than weakening exclusions. Generated `.vercel` output is excluded from linting, formatting, and Git.
 
@@ -77,6 +75,9 @@ The owner purchased `ayugpoudel.dev` through Vercel on November 5, 2026. CLI ins
 - https://ayugpoudel.dev returned HTTP 200 with normal HTTPS certificate validation.
 - https://www.ayugpoudel.dev returned HTTP 308 to https://ayugpoudel.dev/.
 - `NEXT_PUBLIC_SITE_URL` was updated in Production and Preview after domain and HTTPS verification.
+- A native Git deployment rebuilt metadata with the custom domain. All four pages return HTTP 200 and the correct custom-domain canonical and Open Graph URLs. The sitemap and robots file use the custom origin; Open Graph PNG and résumé PDF return HTTP 200.
+- Redirects were verified for both HTTP-to-HTTPS and `www`-to-apex, including preserving `/projects/tab`.
+- Custom-domain browser suite: all 13 tests passed in 28.8 seconds using a temporary, ignored Playwright configuration that resolves the hostname to Vercel's verified address `216.198.79.1`. HTTPS certificate validation remained enabled. The default local Chrome DNS path returned `ERR_CONNECTION_RESET`; fresh connections pinned to either published Vercel IPv4 address succeeded. Direct HTTPS requests to both published addresses also returned HTTP 200. This is a qualification of the browser result, not a change to public DNS. The owner was asked to confirm normal Chrome navigation.
 - No unrelated DNS records were modified; no generic DNS records were guessed or manually substituted.
 - Initial registrar-email inspection was pending because Vercel reports that status 30 minutes after purchase. The owner should complete any registrant verification requested by Vercel or the registrar.
 
