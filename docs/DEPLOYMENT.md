@@ -77,8 +77,20 @@ The owner purchased `ayugpoudel.dev` through Vercel on November 5, 2026. CLI ins
 - `NEXT_PUBLIC_SITE_URL` was updated in Production and Preview after domain and HTTPS verification.
 - A native Git deployment rebuilt metadata with the custom domain. All four pages return HTTP 200 and the correct custom-domain canonical and Open Graph URLs. The sitemap and robots file use the custom origin; Open Graph PNG and résumé PDF return HTTP 200.
 - Redirects were verified for both HTTP-to-HTTPS and `www`-to-apex, including preserving `/projects/tab`.
-- Custom-domain browser suite: all 13 tests passed in 28.8 seconds using a temporary, ignored Playwright configuration that resolves the hostname to Vercel's verified address `216.198.79.1`. HTTPS certificate validation remained enabled. The default local Chrome DNS path returned `ERR_CONNECTION_RESET`; fresh connections pinned to either published Vercel IPv4 address succeeded. Direct HTTPS requests to both published addresses also returned HTTP 200. This is a qualification of the browser result, not a change to public DNS. The owner was asked to confirm normal Chrome navigation.
+- Initial custom-domain browser suite: all 13 tests passed in 28.8 seconds using a temporary, ignored Playwright configuration resolving the hostname to Vercel's verified address `216.198.79.1`, with certificate validation enabled. Normal Chrome initially failed through its HTTPS DNS discovery path. This was subsequently diagnosed and addressed as described below.
 - No unrelated DNS records were modified; no generic DNS records were guessed or manually substituted.
 - Initial registrar-email inspection was pending because Vercel reports that status 30 minutes after purchase. The owner should complete any registrant verification requested by Vercel or the registrar.
 
 No `.portfolio` domain is used. Keep the apex domain as canonical and retain the `www` redirect.
+
+## Chrome ECH compatibility fix
+
+The owner reported `ERR_ECH_FALLBACK_CERTIFICATE_INVALID` in Chrome while Safari and cellular access worked. DNS and anonymous Chrome diagnostics showed a Vercel-managed HTTPS record advertising Encrypted Client Hello. Direct HTTPS to the published addresses and Chrome with an explicit verified DNS address both worked.
+
+Vercel's [official OpenAPI schema](https://openapi.vercel.sh) exposes a domain-scoped `echMode` control on `PATCH /v3/domains/{domain}`. The current value was `auto`. It was changed to `disabled` for `ayugpoudel.dev` using the supported update operation. A subsequent domain API read confirmed `echMode: disabled` and `verified: true`.
+
+Vercel-managed DNS inspection then showed that automatic HTTPS/ECH advertisements were removed; existing CAA and ALIAS routing records remained. Standard HTTPS encryption and normal certificate verification remain enabled. No certificate bypass, browser security change, manual DNS address substitution, or unrelated DNS change was applied.
+
+The owner subsequently confirmed that the site now works in Chrome. The first normal-DNS browser suite after the change passed 10 tests; three navigations still returned cached ECH errors (768 px, JavaScript-disabled navigation, and GradeSense workflow). This is a DNS-transition qualification, not an all-pass result. The same full suite previously passed all 13 tests with a verified DNS address. Cached ECH DNS responses may need time to expire. The temporary DNS-pinned verification config remains ignored under `.vercel/` and is not part of the normal test configuration or repository.
+
+Keep `echMode: disabled` unless ECH compatibility is deliberately retested later. Regular checks use the normal `PLAYWRIGHT_BASE_URL=https://ayugpoudel.dev npm run test:e2e` command.
