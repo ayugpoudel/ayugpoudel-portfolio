@@ -45,6 +45,8 @@ Final production release: https://ayugpoudel-dvmuterqg-app-f572.vercel.app (depl
 - Desktop and mobile production screenshots were captured outside the repository for review.
 - Resume asset verification remains pending confirmation of the correct PDF; the UI explicitly identifies it as unavailable rather than linking to a missing file.
 
+A later screenshot navigation timed out. Follow-up requests to the production alias, direct deployment hostname, and the separate Vercel API also timed out before connecting, although DNS resolved. The earlier production checks above were performed successfully; current reachability could not be reconfirmed from this connection. Recheck the public URL and Vercel dashboard after connectivity recovers. No application change was made in response to these connection timeouts.
+
 ## GitHub integration pending approval/authentication
 
 No Git remote existed at audit time. Proposed repository: `ayugpoudel/ayugpoudel-portfolio`. Do not create it or select visibility until the owner explicitly approves.
